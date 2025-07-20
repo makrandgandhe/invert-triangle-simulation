@@ -189,15 +189,28 @@ canvas.addEventListener('touchstart', (e) => {
         const mx = e.touches[0].clientX - rect.left;
         const my = e.touches[0].clientY - rect.top;
         selectedFormation = null;
+        let found = false;
         formations.forEach(f => {
             if (typeof f.selectCircle === 'function') {
                 f.selectCircle(mx, my);
                 if (f.selectedCircle !== null) selectedFormation = f;
             }
-            f.circleManager.selectCircle(mx, my, e.shiftKey);
+            // Increase selection radius for touch
+            f.circleManager.circles.forEach((c, i) => {
+                const pos = f.circleManager.logicalToPixel(c.row, c.col);
+                const dist = Math.hypot(mx - pos.x, my - pos.y);
+                if (dist <= Math.max(32, f.circleManager.grid.spacing/1.5)) {
+                    f.circleManager.selectedCircle = i;
+                    f.circleManager.dragging = true;
+                    f.circleManager.dragOffset.x = mx - pos.x;
+                    f.circleManager.dragOffset.y = my - pos.y;
+                    found = true;
+                }
+            });
         });
-        drawAll();
+        if (found) drawAll();
     }
+    e.preventDefault();
 });
 
 canvas.addEventListener('touchmove', (e) => {
@@ -218,7 +231,6 @@ canvas.addEventListener('touchmove', (e) => {
 canvas.addEventListener('touchend', (e) => {
     formations.forEach(f => {
         if (f.circleManager.dragging && f.circleManager.selectedCircle !== null) {
-            // Use last known touch position
             const rect = canvas.getBoundingClientRect();
             let mx = 0, my = 0;
             if (e.changedTouches && e.changedTouches.length > 0) {
@@ -229,6 +241,7 @@ canvas.addEventListener('touchend', (e) => {
             drawAll();
         }
     });
+    e.preventDefault();
 });
 
 function drawAll() {
