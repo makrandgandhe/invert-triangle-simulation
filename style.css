@@ -1,11 +1,63 @@
 body, html {
-    height: 100%;
     margin: 0;
     padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 canvas {
     display: block;
     position: fixed;
     top: 0;
     left: 0;
+}
+#gridCanvas {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    touch-action: none;
+}
+#floating-counter, #triangle-input-container {
+    max-width: 90vw;
+    box-sizing: border-box;
+}
+#floating-counter {
+    top: 10px;
+    right: 10px;
+    font-size: 1.1rem;
+    padding: 8px 12px;
+}
+#triangle-input-container {
+    top: 10px;
+    left: 10px;
+    font-size: 1rem;
+    padding: 10px 12px;
+}
+input[type="number"], button, label {
+    font-size: 1rem;
+    max-width: 100%;
+}
+@media (max-width: 600px) {
+    #floating-counter, #triangle-input-container {
+        top: 4vw;
+        left: 4vw;
+        right: 4vw;
+        font-size: 1rem;
+        padding: 6vw 4vw;
+        border-radius: 4vw;
+    }
+    #floating-counter {
+        top: 4vw;
+        right: 4vw;
+    }
+    #triangle-input-container {
+        top: 12vw;
+        left: 4vw;
+    }
+    input[type="number"], button, label {
+        font-size: 1.1rem;
+        width: 100%;
+        margin-top: 2vw;
+    }
 }
