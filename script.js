@@ -222,8 +222,15 @@ canvas.addEventListener('touchstart', (e) => {
 canvas.addEventListener('touchmove', (e) => {
     if (e.touches.length === 1 && selectedFormation && selectedFormation.circleManager.dragging && selectedFormation.circleManager.selectedCircle !== null) {
         const rect = canvas.getBoundingClientRect();
-        const mx = e.touches[0].clientX - rect.left;
-        const my = e.touches[0].clientY - rect.top;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (e.touches[0].clientX - rect.left) * scaleX;
+        const my = (e.touches[0].clientY - rect.top) * scaleY;
+        // Always drag relative to the center of the circle
+        const c = selectedFormation.circleManager.circles[selectedFormation.circleManager.selectedCircle];
+        const center = selectedFormation.circleManager.logicalToPixel(c.row, c.col);
+        selectedFormation.circleManager.dragOffset.x = mx - center.x;
+        selectedFormation.circleManager.dragOffset.y = my - center.y;
         selectedFormation.circleManager.dragCircle(mx, my);
         drawAll();
     }
