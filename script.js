@@ -186,11 +186,14 @@ createTriangleBtn.addEventListener('click', () => {
 canvas.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
         const rect = canvas.getBoundingClientRect();
-        const mx = e.touches[0].clientX - rect.left;
-        const my = e.touches[0].clientY - rect.top;
+        // Account for device pixel ratio
+        const dpr = window.devicePixelRatio || 1;
+        const mx = (e.touches[0].clientX - rect.left) * dpr;
+        const my = (e.touches[0].clientY - rect.top) * dpr;
         selectedFormation = null;
         let closest = {dist: Infinity, f: null, i: null, pos: null};
-        formations.forEach(f => {
+        for (let fIdx = formations.length - 1; fIdx >= 0; fIdx--) {
+            const f = formations[fIdx];
             f.circleManager.circles.forEach((c, i) => {
                 const pos = f.circleManager.logicalToPixel(c.row, c.col);
                 const dist = Math.hypot(mx - pos.x, my - pos.y);
@@ -198,8 +201,11 @@ canvas.addEventListener('touchstart', (e) => {
                     closest = {dist, f, i, pos};
                 }
             });
-        });
-        if (closest.dist <= Math.max(32, grid.spacing/1.5)) {
+            if (closest.dist <= f.circleManager.grid.spacing/2) {
+                break;
+            }
+        }
+        if (closest.dist <= (closest.f ? closest.f.circleManager.grid.spacing/2 : grid.spacing/2)) {
             closest.f.circleManager.selectedCircle = closest.i;
             closest.f.circleManager.dragging = true;
             closest.f.circleManager.dragOffset.x = mx - closest.pos.x;
