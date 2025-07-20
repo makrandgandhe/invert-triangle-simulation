@@ -17,6 +17,7 @@ let selectedFormation = null;
 let multiDragActive = false;
 let multiDragStart = null;
 let multiDragOffsets = null;
+let lastTouch = null;
 
 function resizeCanvas() {
     grid.resize();
@@ -188,6 +189,7 @@ canvas.addEventListener('touchstart', (e) => {
         const rect = canvas.getBoundingClientRect();
         const mx = e.touches[0].clientX - rect.left;
         const my = e.touches[0].clientY - rect.top;
+        lastTouch = {x: mx, y: my};
         selectedFormation = null;
         let closest = {dist: Infinity, f: null, i: null, pos: null};
         for (let fIdx = formations.length - 1; fIdx >= 0; fIdx--) {
@@ -246,4 +248,16 @@ function drawAll() {
         f.circleManager.drawCircles();
         f.draw();
     });
+    // Draw green dot at last touch position for hint
+    if (lastTouch) {
+        const ctx = grid.ctx;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(lastTouch.x, lastTouch.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = 'limegreen';
+        ctx.globalAlpha = 0.7;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+        ctx.restore();
+    }
 }
