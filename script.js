@@ -183,6 +183,54 @@ createTriangleBtn.addEventListener('click', () => {
     }
 });
 
+canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.touches[0].clientX - rect.left;
+        const my = e.touches[0].clientY - rect.top;
+        selectedFormation = null;
+        formations.forEach(f => {
+            if (typeof f.selectCircle === 'function') {
+                f.selectCircle(mx, my);
+                if (f.selectedCircle !== null) selectedFormation = f;
+            }
+            f.circleManager.selectCircle(mx, my, e.shiftKey);
+        });
+        drawAll();
+    }
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.touches[0].clientX - rect.left;
+        const my = e.touches[0].clientY - rect.top;
+        formations.forEach(f => {
+            if (f.circleManager.dragging && f.circleManager.selectedCircle !== null) {
+                f.circleManager.dragCircle(mx, my);
+                drawAll();
+            }
+        });
+    }
+    e.preventDefault();
+});
+
+canvas.addEventListener('touchend', (e) => {
+    formations.forEach(f => {
+        if (f.circleManager.dragging && f.circleManager.selectedCircle !== null) {
+            // Use last known touch position
+            const rect = canvas.getBoundingClientRect();
+            let mx = 0, my = 0;
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                mx = e.changedTouches[0].clientX - rect.left;
+                my = e.changedTouches[0].clientY - rect.top;
+            }
+            f.circleManager.dropCircle(mx, my, () => counter.increment());
+            drawAll();
+        }
+    });
+});
+
 function drawAll() {
     grid.drawGrid();
     formations.forEach(f => {
