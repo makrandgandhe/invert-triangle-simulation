@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple One Page App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="triangle-input-container" style="position:fixed;top:20px;left:30px;z-index:1001;background:rgba(0,0,0,0.8);padding:16px 24px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);color:#fff;">
+        <label for="triangle-height-input" style="font-size:1.2rem;">Triangle Height:</label>
+        <input type="number" id="triangle-height-input" min="1" max="50" value="4" style="width:60px;font-size:1.2rem;margin-left:8px;">
+        <label style="margin-left:16px;font-size:1.1rem;">
+            <input type="checkbox" id="inverted-triangle-checkbox" style="vertical-align:middle;margin-right:6px;">Inverted
+        </label><br>
+        <button id="create-triangle-btn" style="margin-top:12px;padding:6px 18px;font-size:1.1rem;border:none;border-radius:4px;background:#0078d4;color:#fff;cursor:pointer;">Create</button>
+    </div>
+    <canvas id="gridCanvas"></canvas>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
