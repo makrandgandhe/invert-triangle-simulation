@@ -18,6 +18,7 @@ let multiDragActive = false;
 let multiDragStart = null;
 let multiDragOffsets = null;
 let lastTouch = null;
+let isTouchDragging = false;
 
 function resizeCanvas() {
     grid.resize();
@@ -214,11 +215,8 @@ canvas.addEventListener('touchstart', (e) => {
         }
         if (closest.dist <= (closest.f ? closest.f.circleManager.grid.spacing/2 : grid.spacing/2)) {
             closest.f.circleManager.selectedCircle = closest.i;
-            closest.f.circleManager.dragging = true;
-            // Always anchor drag to center
-            closest.f.circleManager.dragOffset.x = 0;
-            closest.f.circleManager.dragOffset.y = 0;
             selectedFormation = closest.f;
+            isTouchDragging = false;
             drawAll();
         }
     }
@@ -226,27 +224,36 @@ canvas.addEventListener('touchstart', (e) => {
 });
 
 canvas.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 1 && selectedFormation && selectedFormation.circleManager.dragging && selectedFormation.circleManager.selectedCircle !== null) {
+    if (e.touches.length === 1 && selectedFormation && selectedFormation.circleManager.selectedCircle !== null) {
         const rect = canvas.getBoundingClientRect();
-        const mx = e.touches[0].clientX - rect.left;
-        const my = e.touches[0].clientY - rect.top;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (e.touches[0].clientX - rect.left) * scaleX;
+        const my = (e.touches[0].clientY - rect.top) * scaleY;
+        selectedFormation.circleManager.dragging = true;
+        selectedFormation.circleManager.dragOffset.x = 0;
+        selectedFormation.circleManager.dragOffset.y = 0;
         selectedFormation.circleManager.dragCircle(mx, my);
+        isTouchDragging = true;
         drawAll();
     }
     e.preventDefault();
 });
 
 canvas.addEventListener('touchend', (e) => {
-    if (selectedFormation && selectedFormation.circleManager.dragging && selectedFormation.circleManager.selectedCircle !== null) {
+    if (selectedFormation && selectedFormation.circleManager.selectedCircle !== null && isTouchDragging) {
         const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
         let mx = 0, my = 0;
         if (e.changedTouches && e.changedTouches.length > 0) {
-            mx = e.changedTouches[0].clientX - rect.left;
-            my = e.changedTouches[0].clientY - rect.top;
+            mx = (e.changedTouches[0].clientX - rect.left) * scaleX;
+            my = (e.changedTouches[0].clientY - rect.top) * scaleY;
         }
         selectedFormation.circleManager.dropCircle(mx, my, () => counter.increment());
         drawAll();
     }
+    isTouchDragging = false;
     e.preventDefault();
 });
 
