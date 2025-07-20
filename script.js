@@ -187,8 +187,10 @@ createTriangleBtn.addEventListener('click', () => {
 canvas.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
         const rect = canvas.getBoundingClientRect();
-        const mx = e.touches[0].clientX - rect.left;
-        const my = e.touches[0].clientY - rect.top;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mx = (e.touches[0].clientX - rect.left) * scaleX;
+        const my = (e.touches[0].clientY - rect.top) * scaleY;
         lastTouch = {x: mx, y: my};
         selectedFormation = null;
         let closest = {dist: Infinity, f: null, i: null, pos: null};
