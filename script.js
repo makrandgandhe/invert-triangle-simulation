@@ -189,58 +189,50 @@ canvas.addEventListener('touchstart', (e) => {
         const mx = e.touches[0].clientX - rect.left;
         const my = e.touches[0].clientY - rect.top;
         selectedFormation = null;
-        let found = false;
+        let closest = {dist: Infinity, f: null, i: null, pos: null};
         formations.forEach(f => {
-            if (typeof f.selectCircle === 'function') {
-                f.selectCircle(mx, my);
-                if (f.selectedCircle !== null) selectedFormation = f;
-            }
-            // Increase selection radius for touch
             f.circleManager.circles.forEach((c, i) => {
                 const pos = f.circleManager.logicalToPixel(c.row, c.col);
                 const dist = Math.hypot(mx - pos.x, my - pos.y);
-                if (dist <= Math.max(32, f.circleManager.grid.spacing/1.5)) {
-                    f.circleManager.selectedCircle = i;
-                    f.circleManager.dragging = true;
-                    f.circleManager.dragOffset.x = mx - pos.x;
-                    f.circleManager.dragOffset.y = my - pos.y;
-                    found = true;
+                if (dist < closest.dist) {
+                    closest = {dist, f, i, pos};
                 }
             });
         });
-        if (found) drawAll();
+        if (closest.dist <= Math.max(32, grid.spacing/1.5)) {
+            closest.f.circleManager.selectedCircle = closest.i;
+            closest.f.circleManager.dragging = true;
+            closest.f.circleManager.dragOffset.x = mx - closest.pos.x;
+            closest.f.circleManager.dragOffset.y = my - closest.pos.y;
+            selectedFormation = closest.f;
+            drawAll();
+        }
     }
     e.preventDefault();
 });
 
 canvas.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 1) {
+    if (e.touches.length === 1 && selectedFormation && selectedFormation.circleManager.dragging && selectedFormation.circleManager.selectedCircle !== null) {
         const rect = canvas.getBoundingClientRect();
         const mx = e.touches[0].clientX - rect.left;
         const my = e.touches[0].clientY - rect.top;
-        formations.forEach(f => {
-            if (f.circleManager.dragging && f.circleManager.selectedCircle !== null) {
-                f.circleManager.dragCircle(mx, my);
-                drawAll();
-            }
-        });
+        selectedFormation.circleManager.dragCircle(mx, my);
+        drawAll();
     }
     e.preventDefault();
 });
 
 canvas.addEventListener('touchend', (e) => {
-    formations.forEach(f => {
-        if (f.circleManager.dragging && f.circleManager.selectedCircle !== null) {
-            const rect = canvas.getBoundingClientRect();
-            let mx = 0, my = 0;
-            if (e.changedTouches && e.changedTouches.length > 0) {
-                mx = e.changedTouches[0].clientX - rect.left;
-                my = e.changedTouches[0].clientY - rect.top;
-            }
-            f.circleManager.dropCircle(mx, my, () => counter.increment());
-            drawAll();
+    if (selectedFormation && selectedFormation.circleManager.dragging && selectedFormation.circleManager.selectedCircle !== null) {
+        const rect = canvas.getBoundingClientRect();
+        let mx = 0, my = 0;
+        if (e.changedTouches && e.changedTouches.length > 0) {
+            mx = e.changedTouches[0].clientX - rect.left;
+            my = e.changedTouches[0].clientY - rect.top;
         }
-    });
+        selectedFormation.circleManager.dropCircle(mx, my, () => counter.increment());
+        drawAll();
+    }
     e.preventDefault();
 });
 
