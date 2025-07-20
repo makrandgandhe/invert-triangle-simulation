@@ -87,6 +87,11 @@ canvas.addEventListener('mousedown', (e) => {
             if (f.selectedCircle !== null) selectedFormation = f;
         }
         f.circleManager.selectCircle(mx, my, e.shiftKey);
+        // Always anchor drag to center for mouse
+        if (f.circleManager.selectedCircle !== null && f.circleManager.dragging) {
+            f.circleManager.dragOffset.x = 0;
+            f.circleManager.dragOffset.y = 0;
+        }
     });
     // Start multi-drag if ctrl is pressed and multiple circles are selected in any formation
     formations.forEach(f => {
@@ -210,8 +215,9 @@ canvas.addEventListener('touchstart', (e) => {
         if (closest.dist <= (closest.f ? closest.f.circleManager.grid.spacing/2 : grid.spacing/2)) {
             closest.f.circleManager.selectedCircle = closest.i;
             closest.f.circleManager.dragging = true;
-            closest.f.circleManager.dragOffset.x = mx - closest.pos.x;
-            closest.f.circleManager.dragOffset.y = my - closest.pos.y;
+            // Always anchor drag to center
+            closest.f.circleManager.dragOffset.x = 0;
+            closest.f.circleManager.dragOffset.y = 0;
             selectedFormation = closest.f;
             drawAll();
         }
@@ -222,15 +228,8 @@ canvas.addEventListener('touchstart', (e) => {
 canvas.addEventListener('touchmove', (e) => {
     if (e.touches.length === 1 && selectedFormation && selectedFormation.circleManager.dragging && selectedFormation.circleManager.selectedCircle !== null) {
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        const mx = (e.touches[0].clientX - rect.left) * scaleX;
-        const my = (e.touches[0].clientY - rect.top) * scaleY;
-        // Always drag relative to the center of the circle
-        const c = selectedFormation.circleManager.circles[selectedFormation.circleManager.selectedCircle];
-        const center = selectedFormation.circleManager.logicalToPixel(c.row, c.col);
-        selectedFormation.circleManager.dragOffset.x = mx - center.x;
-        selectedFormation.circleManager.dragOffset.y = my - center.y;
+        const mx = e.touches[0].clientX - rect.left;
+        const my = e.touches[0].clientY - rect.top;
         selectedFormation.circleManager.dragCircle(mx, my);
         drawAll();
     }
