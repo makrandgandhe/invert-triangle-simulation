@@ -19,6 +19,12 @@ let multiDragStart = null;
 let multiDragOffsets = null;
 
 function resizeCanvas() {
+    // Use devicePixelRatio for crisp rendering and accurate coordinates
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
     grid.resize();
     formations.forEach(f => f.circleManager.realignCircles());
     drawAll();
