@@ -186,10 +186,8 @@ createTriangleBtn.addEventListener('click', () => {
 canvas.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
         const rect = canvas.getBoundingClientRect();
-        // Account for device pixel ratio
-        const dpr = window.devicePixelRatio || 1;
-        const mx = (e.touches[0].clientX - rect.left) * dpr;
-        const my = (e.touches[0].clientY - rect.top) * dpr;
+        const mx = e.touches[0].clientX - rect.left;
+        const my = e.touches[0].clientY - rect.top;
         selectedFormation = null;
         let closest = {dist: Infinity, f: null, i: null, pos: null};
         for (let fIdx = formations.length - 1; fIdx >= 0; fIdx--) {
